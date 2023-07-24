@@ -1,4 +1,5 @@
 ﻿using SchoolManagement.Models;
+using System;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
@@ -58,6 +59,27 @@ namespace SchoolManagement.Controllers
             ViewBag.CourseID = new SelectList(db.Courses, "CourseId", "Title", enrollment.CourseID);
             ViewBag.StudentID = new SelectList(db.Students, "StudentId", "LastName", enrollment.StudentID);
             return View(enrollment);
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> AddStudent([Bind(Include = "CourseID,StudentID")] Enrollment enrollment)
+        {
+            try
+            {
+                var isEnrolled = db.Enrollments.Any(q => q.CourseID == enrollment.CourseID && q.StudentID == enrollment.StudentID);
+                if (ModelState.IsValid && !isEnrolled)
+                {
+                    db.Enrollments.Add(enrollment);
+                    await db.SaveChangesAsync();
+                    return Json(new { IsSuccess = true, Message = "Student Added Successfully." }, JsonRequestBehavior.AllowGet);
+                }
+                return Json(new { IsSuccess = false, Message = "Student is already Enrolled." }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception e)
+            {
+
+                return Json(new { IsSuccess = false, Message = $"Pelase wait... we got an error processing your request. {e}", JsonRequestBehavior.AllowGet });
+            }
         }
 
         // GET: Enrollments/Edit/5
