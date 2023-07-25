@@ -6,6 +6,37 @@
 }
 
 <script>
+
+    $(function () {
+
+        function LoadEnrollments(cid) {
+            $.ajax({
+                url: '@Url.Action("_enrollmentPartial", "Enrollments")',
+                dataType: "html",
+                contentType: "application/html; charset=utf-8",
+                type: "GET",
+                data: {
+                    courseId: cid
+                },
+                success: function (data) {
+                    $("#data").fadeOut().html(data).fadeIn()
+                }
+            })
+        }
+
+        var cid = $("#CourseID").val()
+        LoadEnrollments(cid)
+
+        $("#CourseID").change(function () {
+            var cid = $("#CourseID").val()
+            LoadEnrollments(cid)
+            $("#failed").fadeOut('fast')
+            $("#success").fadeIn('fast')
+        })
+    })
+
+
+
     $(function () {
         $("#Student_FirstName").autocomplete({
             source: function (request, response) {
@@ -35,8 +66,22 @@
     function Added(res) {
         if (res.IsSuccess) {
             $(function () {
+                $("#failed").fadeOut('fast')
                 $("#success").fadeIn('fast')
                 // $("#success").append(res.Message)
+                var cid = $("#CourseID").val()
+                $.ajax({
+                url: '@Url.Action("_enrollmentPartial", "Enrollments")',
+                dataType: "html",
+                contentType: "application/html; charset=utf-8",
+                type: "GET",
+                data: {
+                    courseId: cid
+                },
+                success: function (data) {
+                    $("#data").fadeOut().html(data).fadeIn()
+                }
+                })
             })
         } else {
             Failed(res)
@@ -47,7 +92,8 @@
     function Failed(res) {
         if (!res.IsSuccess) {
             $(function () {
-                $("#failed").fadeIn('fast')
+                $("#failed").fadeOut('fast')
+                $("#success").fadeIn('fast')
                 // $("#failed").append(res.Message)
             })
         }
@@ -112,6 +158,11 @@
     </div>
 </div>
 }
+
+<hr />
+<div id="data">
+    @Html.Action("_enrollmentPartial", "Enrollments")
+</div>
 
 <div>
     @Html.ActionLink("Back to List", "Index")

@@ -19,6 +19,15 @@ namespace SchoolManagement.Controllers
             return View(await enrollments.ToListAsync());
         }
 
+        public PartialViewResult _enrollmentPartial(int? courseId)
+        {
+            var enrollments = db.Enrollments.Where(e => e.CourseID == courseId)
+                .Include(e => e.Course)
+                .Include(e => e.Student);
+
+            return PartialView(enrollments.ToList());
+        }
+
         // GET: Enrollments/Details/5
         public async Task<ActionResult> Details(int? id)
         {
